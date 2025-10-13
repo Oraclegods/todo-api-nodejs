@@ -1,0 +1,58 @@
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const connectDB = require('./src/config/database');
+const todoRoutes = require('./src/routes/todoRoutes');
+const { errorHandler } = require('./src/middleware/errorHandler');
+
+// Connect to database
+connectDB();
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(cors()); // Enable CORS for all routes
+app.use(express.json()); // Parse JSON bodies
+app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
+
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path} - ${new Date().toISOString()}`);
+  next();
+});
+
+// Routes
+app.use('/api/todos', todoRoutes);
+
+// Health check route
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Server is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Handle undefined routes
+app.use('*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `Route ${req.originalUrl} not found`
+  });
+});
+
+// Error handling middleware (must be last)
+app.use(errorHandler);
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err, promise) => {
+  console.log('Unhandled Rejection at:', promise, 'reason:', err);
+  // Close server & exit process
+  process.exit(1);
+});
