@@ -1,9 +1,9 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const connectDB = require('./src/config/database');
-const todoRoutes = require('./src/routes/todoRoutes');
-const { errorHandler } = require('./src/middleware/errorHandler');
+const connectDB = require('./config/database');
+const todoRoutes = require('./routes/todoRoutes');
+const { errorHandler } = require('./middleware/errorHandler');
 
 // Connect to database
 connectDB();
@@ -35,7 +35,14 @@ app.get('/health', (req, res) => {
 });
 
 // Handle undefined routes
-app.use('*', (req, res) => {
+// app.use('*', (req, res) => {
+//  res.status(404).json({
+//    success: false,
+//    message: `Route ${req.originalUrl} not found`
+//  });
+// }); 
+
+app.use((req, res) => {
   res.status(404).json({
     success: false,
     message: `Route ${req.originalUrl} not found`
