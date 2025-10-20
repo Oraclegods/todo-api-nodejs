@@ -9,7 +9,12 @@ const {
 } = require('../controllers/todoController');
 const { validate, createTodoSchema, updateTodoSchema } = require('../utils/validation');
 
+const { protect } = require('../middleware/auth');
 const router = express.Router();
+
+
+// Protect all todo routes
+router.use(protect);
 
 // GET /api/todos - Get all todos with optional filtering and pagination
 router.get('/', getTodos);

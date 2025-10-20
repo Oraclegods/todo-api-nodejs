@@ -23,7 +23,14 @@ const todoSchema = new mongoose.Schema({
   },
   dueDate: {
     type: Date
+  },
+
+user: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'User',
+    required: true
   }
+
 }, {
   timestamps: true // Adds createdAt and updatedAt automatically
 });

@@ -1,14 +1,14 @@
 const Todo = require('../models/Todo');
 const { asyncHandler } = require('../middleware/errorHandler');
 
-// @desc    Get all todos
+// @desc    Get all todos for authenticated user
 // @route   GET /api/todos
-// @access  Public
+// @access  Private
 const getTodos = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, completed, priority } = req.query;
   
-  // Build filter object
-  const filter = {};
+  // Build filter object - only get todos for the authenticated user
+  const filter = { user: req.user.id };
   if (completed !== undefined) {
     filter.completed = completed === 'true';
   }
@@ -37,9 +37,12 @@ const getTodos = asyncHandler(async (req, res) => {
 
 // @desc    Get single todo
 // @route   GET /api/todos/:id
-// @access  Public
+// @access  Private
 const getTodo = asyncHandler(async (req, res) => {
-  const todo = await Todo.findById(req.params.id);
+  const todo = await Todo.findOne({ 
+    _id: req.params.id, 
+    user: req.user.id 
+  });
   
   if (!todo) {
     return res.status(404).json({
@@ -56,9 +59,12 @@ const getTodo = asyncHandler(async (req, res) => {
 
 // @desc    Create new todo
 // @route   POST /api/todos
-// @access  Public
+// @access  Private
 const createTodo = asyncHandler(async (req, res) => {
-  const todo = await Todo.create(req.body);
+  const todo = await Todo.create({
+    ...req.body,
+    user: req.user.id
+  });
   
   res.status(201).json({
     success: true,
@@ -68,9 +74,12 @@ const createTodo = asyncHandler(async (req, res) => {
 
 // @desc    Update todo
 // @route   PUT /api/todos/:id
-// @access  Public
+// @access  Private
 const updateTodo = asyncHandler(async (req, res) => {
-  let todo = await Todo.findById(req.params.id);
+  let todo = await Todo.findOne({ 
+    _id: req.params.id, 
+    user: req.user.id 
+  });
   
   if (!todo) {
     return res.status(404).json({
@@ -79,8 +88,8 @@ const updateTodo = asyncHandler(async (req, res) => {
     });
   }
   
-  todo = await Todo.findByIdAndUpdate(
-    req.params.id,
+  todo = await Todo.findOneAndUpdate(
+    { _id: req.params.id, user: req.user.id },
     req.body,
     {
       new: true, // Return updated document
@@ -96,9 +105,12 @@ const updateTodo = asyncHandler(async (req, res) => {
 
 // @desc    Delete todo
 // @route   DELETE /api/todos/:id
-// @access  Public
+// @access  Private
 const deleteTodo = asyncHandler(async (req, res) => {
-  const todo = await Todo.findById(req.params.id);
+  const todo = await Todo.findOne({ 
+    _id: req.params.id, 
+    user: req.user.id 
+  });
   
   if (!todo) {
     return res.status(404).json({
@@ -107,7 +119,10 @@ const deleteTodo = asyncHandler(async (req, res) => {
     });
   }
   
-  await Todo.findByIdAndDelete(req.params.id);
+  await Todo.findOneAndDelete({ 
+    _id: req.params.id, 
+    user: req.user.id 
+  });
   
   res.status(200).json({
     success: true,
@@ -117,9 +132,12 @@ const deleteTodo = asyncHandler(async (req, res) => {
 
 // @desc    Toggle todo completion status
 // @route   PATCH /api/todos/:id/toggle
-// @access  Public
+// @access  Private
 const toggleTodo = asyncHandler(async (req, res) => {
-  const todo = await Todo.findById(req.params.id);
+  const todo = await Todo.findOne({ 
+    _id: req.params.id, 
+    user: req.user.id 
+  });
   
   if (!todo) {
     return res.status(404).json({
