@@ -23,6 +23,11 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Please add a password'],
     minlength: 6,
     select: false // Don't return password in queries
+  },
+  role: {
+    type: String,
+    enum: ['user', 'admin'],
+    default: 'user'
   }
 }, {
   timestamps: true

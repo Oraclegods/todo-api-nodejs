@@ -4,6 +4,7 @@ const cors = require('cors');
 const connectDB = require('./config/database');
 const todoRoutes = require('./routes/todoRoutes');
 const authRoutes = require('./routes/authRoutes');
+
 const { errorHandler } = require('./middleware/errorHandler');
 
 // Connect to database
@@ -26,7 +27,7 @@ app.use((req, res, next) => {
 // Routes
 app.use('/api/todos', todoRoutes);
 
-// other route uses
+// Auth routes
 app.use('/api/auth', authRoutes);
 
 // Health check route
@@ -49,6 +50,12 @@ app.get('/', (req, res) => {
       todos: '/api/todos'
     }
   });
+});
+
+
+// Test route - remove this later
+app.post('/api/auth/test', (req, res) => {
+  res.json({ message: 'Test route is working!' });
 });
 
 // Handle undefined routes
@@ -80,3 +87,9 @@ process.on('unhandledRejection', (err, promise) => {
   // Close server & exit process
   process.exit(1);
 });
+
+
+// Simple debug
+console.log('✅ Routes loaded:');
+console.log('   - /api/todos');
+console.log('   - /api/auth');
